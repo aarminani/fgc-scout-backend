@@ -20,15 +20,29 @@ export default async function handler(req, res) {
         'X-Title': 'FGC Content Scout',
       },
       body: JSON.stringify({
-        model: body.model || 'meta-llama/llama-3.3-70b-instruct:free',
+        model: 'meta-llama/llama-3.3-70b-instruct:free',
         messages: body.messages,
       }),
     });
 
-    const data = await response.json();
+    const raw = await response.text();
+    console.log('[scout] OpenRouter raw response:', raw);
 
-    // Normalize OpenRouter response to match Anthropic format the frontend expects
+    let data;
+    try { data = JSON.parse(raw); } catch {
+      return res.status(500).json({ error: 'OpenRouter returned invalid JSON', raw });
+    }
+
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message || 'OpenRouter error', detail: data });
+    }
+
     const text = data.choices?.[0]?.message?.content || '';
+
+    if (!text) {
+      return res.status(500).json({ error: 'Empty response from OpenRouter', detail: data });
+    }
+
     return res.status(200).json({
       content: [{ type: 'text', text }]
     });
