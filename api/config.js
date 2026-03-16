@@ -13,7 +13,14 @@ const DEFAULT_CONFIG = {
 };
 
 export default async function handler(req, res) {
-  const db = getDb();
+  // Handle CORS preflight
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
   // GET — return current config
   if (req.method === 'GET') {
@@ -28,7 +35,7 @@ export default async function handler(req, res) {
       // Build config object from rows, fall back to defaults
       const cfg = { ...DEFAULT_CONFIG };
       for (const row of data || []) {
-        try { cfg[row.key] = JSON.parse(row.value); } catch {}
+        try { cfg[row.key] = JSON.parse(row.value); } catch { }
       }
 
       return res.status(200).json({ ok: true, config: cfg });
