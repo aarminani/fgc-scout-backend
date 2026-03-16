@@ -2,7 +2,7 @@ import { ensureSchema, getRecentFeed } from '../lib/db.js';
 import { feedToPromptText } from '../lib/normalize.js';
 
 export const config = {
-  runtime: 'nodejs18.x',
+  runtime: 'nodejs',
 };
 
 export default async function handler(req, res) {
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       : [];
 
     const items = await getRecentFeed({
-      limit:     Math.min(parseInt(limit, 10) || 100, 200),
+      limit: Math.min(parseInt(limit, 10) || 100, 200),
       platforms: platformFilter,
     });
 
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     }
 
     const meta = {
-      total:     items.length,
+      total: items.length,
       fetched_at: new Date().toISOString(),
       platforms: [...new Set(items.map(i => i.platform))],
     };
