@@ -1,8 +1,7 @@
 {
   "name": "fgc-scout-backend",
   "version": "1.0.0",
-  "description": "FGC Content Scout — automated feed fetcher for Reddit, Twitter/X, and YouTube",
-  "private": true,
+  "type": "module",
   "engines": {
     "node": ">=18"
   },
