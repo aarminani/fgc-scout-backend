@@ -1,12 +1,12 @@
 import { ensureSchema, upsertItems, pruneOldItems, logFetch } from '../../lib/db.js';
-import { fetchReddit } from '../scrapers/reddit.js';
+import { fetchReddit }  from '../scrapers/reddit.js';
 import { fetchTwitter } from '../scrapers/twitter.js';
 import { fetchYouTube } from '../scrapers/youtube.js';
 
 const MAX_ITEMS = parseInt(process.env.FEED_MAX_ITEMS_PER_SOURCE || '50', 10);
 
 export const config = {
-  runtime: 'nodejs',
+  runtime: 'nodejs18.x',
 };
 
 export default async function handler(req, res) {
