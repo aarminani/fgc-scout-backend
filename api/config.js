@@ -13,7 +13,6 @@ const DEFAULT_CONFIG = {
 };
 
 export default async function handler(req, res) {
-  // Handle CORS preflight
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -22,7 +21,8 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // GET — return current config
+  const db = getDb();
+
   if (req.method === 'GET') {
     try {
       const { data, error } = await db
@@ -32,7 +32,6 @@ export default async function handler(req, res) {
 
       if (error) throw error;
 
-      // Build config object from rows, fall back to defaults
       const cfg = { ...DEFAULT_CONFIG };
       for (const row of data || []) {
         try { cfg[row.key] = JSON.parse(row.value); } catch { }
@@ -44,7 +43,6 @@ export default async function handler(req, res) {
     }
   }
 
-  // POST — update a config key
   if (req.method === 'POST') {
     const secret = process.env.CRON_SECRET;
     const auth = req.headers.authorization;
@@ -53,7 +51,12 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { key, value } = req.body;
+      let body = req.body;
+      if (typeof body === 'string') {
+        try { body = JSON.parse(body); } catch { }
+      }
+
+      const { key, value } = body || {};
 
       if (!key || !Object.keys(DEFAULT_CONFIG).includes(key)) {
         return res.status(400).json({ error: 'Invalid config key' });
